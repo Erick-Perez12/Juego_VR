@@ -380,6 +380,11 @@ public class MonsterController : MonoBehaviour
         {
             timerManager.PausarTemporizador();
         }
+        // Detener el ambiente del ducto al perder 
+        if (DuctAmbienceManager.Instance != null)
+        {
+            DuctAmbienceManager.Instance.DetenerSonidoDucto();
+        }
         // Cambiar mensaje en la pizarra
         if (GameOverManager.Instance != null)
         {
