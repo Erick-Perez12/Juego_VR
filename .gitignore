@@ -1,0 +1,30 @@
+# Carpetas temporales y compiladas de Unity
+Library/
+Temp/
+Obj/
+Build/
+Builds/
+Logs/
+UserSettings/
+MemoryCaptures/
+.vs/
+proyect.zip
+
+# Archivos de la solución de IDEs (VS Code / Visual Studio)
+/*.csproj
+/*.unityproj
+/*.sln
+/*.suo
+/*.tmp
+/*.user
+/*.userprefs
+/*.pidb
+/*.booproj
+/*.svd
+/*.pdb
+/*.opendb
+/*.VC.db
+
+# Sistema Operativo
+.DS_Store
+Thumbs.db
