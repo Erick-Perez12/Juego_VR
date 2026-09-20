@@ -74,9 +74,16 @@ public class KeypadController : MonoBehaviour
 {
     [Header("UI / Malla Pantalla")]
     public TMP_Text pantalla;
-
     [Tooltip("Arrastra aquí tu objeto 3D Cube 'fondo'")]
     public MeshRenderer fondoCubo3D;
+
+    [Header("Audio SFX Keypad")]
+    [Tooltip("Componente AudioSource ubicado en el Keypad")]
+    public AudioSource audioSource;
+    [Tooltip("Sonido de acceso concedido (Correcto)")]
+    public AudioClip sonidoCorrecto;
+    [Tooltip("Sonido de denegado / error (Incorrecto)")]
+    public AudioClip sonidoIncorrecto;
 
     [Header("Colores de Fondo")]
     public Color colorFondoNormal = new Color(0.2f, 0.8f, 0.2f); // Verde claro
@@ -128,6 +135,7 @@ public class KeypadController : MonoBehaviour
 
         if (gameManager != null && !gameManager.TodosLosAcertijosResueltos())
         {
+            ReproducirSonido(sonidoIncorrecto);
             MostrarFeedbackTemporal("LOCKED", colorFondoError, colorTextoError, 2.0f);
             Debug.Log("Primero debes resolver los cuatro acertijos.");
             return;
@@ -138,6 +146,7 @@ public class KeypadController : MonoBehaviour
             Debug.Log("¡CÓDIGO CORRECTO!");
 
             estaBloqueado = true;
+            ReproducirSonido(sonidoCorrecto);
             if (pantalla != null) pantalla.text = "ACCEPTED";
             AplicarColores(colorFondoExito, colorTextoExito);
 
@@ -149,6 +158,7 @@ public class KeypadController : MonoBehaviour
         else
         {
             Debug.Log("Código incorrecto.");
+            ReproducirSonido(sonidoIncorrecto);
             MostrarFeedbackTemporal("ERROR", colorFondoError, colorTextoError, 1.5f);
         }
     }
@@ -180,6 +190,13 @@ public class KeypadController : MonoBehaviour
         if (pantalla != null)
         {
             pantalla.color = texto;
+        }
+    }
+    private void ReproducirSonido(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
         }
     }
 

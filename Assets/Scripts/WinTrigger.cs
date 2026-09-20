@@ -66,8 +66,8 @@ public class WinTrigger : MonoBehaviour
             // 1. Detener el temporizador
             if (timeManager != null)
             {
-                timeManager.PausarTemporizador();
-            }
+               timeManager.PausarTemporizador();
+           }
             // Cambiar el mensaje en la pizarra
             if (GameOverManager.Instance != null)
             {
@@ -80,9 +80,9 @@ public class WinTrigger : MonoBehaviour
                 monstruo.DesactivarMonstruoCompletamente();
             }
 
-            if (GameOverManager.Instance != null)
+            if (DuctAmbienceManager.Instance != null)
             {
-                GameOverManager.Instance.MostrarMensajeVictoria();
+                DuctAmbienceManager.Instance.DetenerSonidoDucto();
             }
             // 2. Teletransportar al jugador sin desfase
             TeleportToBlackRoom();

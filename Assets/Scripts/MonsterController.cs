@@ -281,6 +281,11 @@ public class MonsterController : MonoBehaviour
 
         monstruo.SetActive(true);
         monstruoActivo = true;
+        // Detener el ambiente del ducto mientras el monstruo esté presente
+        if (DuctAmbienceManager.Instance != null)
+        {
+            DuctAmbienceManager.Instance.DetenerSonidoDucto();
+        }
 
         if (audioMonstruo != null)
         {
@@ -309,7 +314,11 @@ public class MonsterController : MonoBehaviour
         {
             audioMonstruo.Stop();
         }
-
+        // Reanudar el ambiente aleatorio del ducto al irse el monstruo
+        if (DuctAmbienceManager.Instance != null)
+        {
+            DuctAmbienceManager.Instance.IniciarCicloAleatorio();
+        }
         // Detener el parpadeo y restaurar la luz a su estado normal
         RestaurarLuzNormal();
 
