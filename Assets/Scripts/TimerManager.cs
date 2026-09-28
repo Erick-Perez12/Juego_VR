@@ -124,7 +124,7 @@ using System.Collections;
 public class TimerManager : MonoBehaviour
 {
     public float tiempoInicial = 300f; // 5 minutos = 300 segundos
-    public TMP_Text textoTiempo; // Arrastra tu componente TextMeshPro aquí
+    public TMP_Text[] textoTiempo; // Arrastra tu componente TextMeshPro aquí
 
     [Header("Configuración de GameOver")]
     public Transform jugadorVR;             // Arrastra tu OVRCameraRig / Player aquí
@@ -271,7 +271,14 @@ public class TimerManager : MonoBehaviour
             int segundos = Mathf.FloorToInt(tiempoRestante % 60f);
 
             // Formato MM:SS (ejemplo 05:00, 04:59)
-            textoTiempo.text = string.Format("{0:00}:{1:00}", minutos, segundos);
+            //textoTiempo.text = string.Format("{0:00}:{1:00}", minutos, segundos);
+            foreach (TMP_Text texto in textoTiempo)
+            {
+                if (texto != null)
+                {
+                    texto.text = string.Format("{0:00}:{1:00}", minutos, segundos); // (usa el formato de texto que ya tenías)
+                }
+            }
         }
     }
     private void DetenerSonidoFondo()

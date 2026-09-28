@@ -85,6 +85,22 @@ public class KeypadController : MonoBehaviour
     [Tooltip("Sonido de denegado / error (Incorrecto)")]
     public AudioClip sonidoIncorrecto;
 
+    [Header("Evento Distractor / Sustos")]
+    [Tooltip("Luces principales de la habitación que se apagarán")]
+    public Light[] lucesHabitacion;
+    [Tooltip("Sonido de susto / falla eléctrica que sonará durante el apagón")]
+    public AudioClip sonidoApagon;
+    [Tooltip("Tiempo en segundos que durará el apagón")]
+    public float duracionApagon = 2.5f;
+
+    [Header("Ceguera al Cambio (Desordenar Objetos)")]
+    [Tooltip("Los objetos interactivos de la mesa (ej. tren, pájaro, etc.)")]
+    public Transform[] objetosADesordenar;
+    [Tooltip("Puntos a donde se moverán los objetos cuando ocurra el apagón (fuera de sus sockets)")]
+    public Transform[] posicionesNuevas;
+    [Tooltip("Sockets/Bases de la mesa donde encajaban los objetos")]
+    public SocketReceiver[] socketsMesa;
+
     [Header("Colores de Fondo")]
     public Color colorFondoNormal = new Color(0.2f, 0.8f, 0.2f); // Verde claro
     public Color colorTextoNormal = Color.black;
@@ -98,11 +114,12 @@ public class KeypadController : MonoBehaviour
     public DoorController puerta;
 
     [Header("Configuración del Código")]
-    public string codigoCorrecto = "7391";
+    public string codigoCorrecto = "739";
 
     private string codigoIngresado = "";
-    private const int longitudCodigo = 4;
+    private const int longitudCodigo = 3;
     private bool estaBloqueado = false;
+    private bool yaOcurrioApagon = false;
     private Coroutine rutinaFeedback;
 
     void Start()
@@ -113,6 +130,13 @@ public class KeypadController : MonoBehaviour
     public void PresionarNumero(int numero)
     {
         if (estaBloqueado) return;
+
+        // Si ya resolvió todo y es la primera vez que toca el teclado, dispara el evento
+        if (gameManager != null && gameManager.TodosLosAcertijosResueltos() && !yaOcurrioApagon)
+        {
+            StartCoroutine(RutinaEventoApagon());
+            return;
+        }
 
         if (codigoIngresado.Length >= longitudCodigo)
             return;
@@ -137,7 +161,14 @@ public class KeypadController : MonoBehaviour
         {
             ReproducirSonido(sonidoIncorrecto);
             MostrarFeedbackTemporal("LOCKED", colorFondoError, colorTextoError, 2.0f);
-            Debug.Log("Primero debes resolver los cuatro acertijos.");
+            Debug.Log("Primero debes resolver los tres acertijos.");
+            return;
+        }
+
+        // Si intenta presionar Enter y no ha ocurrido el apagón
+        if (!yaOcurrioApagon)
+        {
+            StartCoroutine(RutinaEventoApagon());
             return;
         }
 
@@ -160,6 +191,70 @@ public class KeypadController : MonoBehaviour
             Debug.Log("Código incorrecto.");
             ReproducirSonido(sonidoIncorrecto);
             MostrarFeedbackTemporal("ERROR", colorFondoError, colorTextoError, 1.5f);
+        }
+    }
+
+    IEnumerator RutinaEventoApagon()
+    {
+        yaOcurrioApagon = true;
+        estaBloqueado = true;
+
+        // 1. Sonido de error y susto
+        ReproducirSonido(sonidoApagon != null ? sonidoApagon : sonidoIncorrecto);
+        MostrarFeedbackTemporal("ERROR", colorFondoError, colorTextoError, duracionApagon);
+
+        // 2. Apagar luces del cuarto
+        if (lucesHabitacion != null)
+        {
+            foreach (Light l in lucesHabitacion)
+            {
+                if (l != null) l.enabled = false;
+            }
+        }
+        if (socketsMesa != null)
+        {
+            foreach (SocketReceiver socket in socketsMesa)
+            {
+                if (socket != null) socket.LiberarSocket();
+            }
+        }
+        Debug.Log("¡EVENTO: APAGÓN DE DISTRACCIÓN!");
+        MoverObjetosFueraDeSitio();
+        // 3. Esperar la duración del apagón
+        yield return new WaitForSeconds(duracionApagon);
+
+        // 4. Encender las luces de nuevo
+        if (lucesHabitacion != null)
+        {
+            foreach (Light l in lucesHabitacion)
+            {
+                if (l != null) l.enabled = true;
+            }
+        }
+
+        // 5. Resetear pantalla del Keypad
+        EstablecerEstadoNormal();
+    }
+    private void MoverObjetosFueraDeSitio()
+    {
+        if (objetosADesordenar == null || posicionesNuevas == null) return;
+
+        for (int i = 0; i < objetosADesordenar.Length; i++)
+        {
+            if (objetosADesordenar[i] != null && i < posicionesNuevas.Length && posicionesNuevas[i] != null)
+            {
+                // Si el objeto tiene Rigidbody, reseteamos sus velocidades para moverlo de forma limpia
+                Rigidbody rb = objetosADesordenar[i].GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.linearVelocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                }
+
+                // Movemos el objeto a la nueva posición fuera del socket
+                objetosADesordenar[i].position = posicionesNuevas[i].position;
+                objetosADesordenar[i].rotation = posicionesNuevas[i].rotation;
+            }
         }
     }
 

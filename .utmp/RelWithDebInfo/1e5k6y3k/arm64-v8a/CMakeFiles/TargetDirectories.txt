@@ -1,0 +1,5 @@
+D:/mis_programas/Unity/Projects/game/.utmp/RelWithDebInfo/1e5k6y3k/arm64-v8a/CMakeFiles/edit_cache.dir
+D:/mis_programas/Unity/Projects/game/.utmp/RelWithDebInfo/1e5k6y3k/arm64-v8a/CMakeFiles/rebuild_cache.dir
+D:/mis_programas/Unity/Projects/game/.utmp/RelWithDebInfo/1e5k6y3k/arm64-v8a/GameActivity/CMakeFiles/game.dir
+D:/mis_programas/Unity/Projects/game/.utmp/RelWithDebInfo/1e5k6y3k/arm64-v8a/GameActivity/CMakeFiles/edit_cache.dir
+D:/mis_programas/Unity/Projects/game/.utmp/RelWithDebInfo/1e5k6y3k/arm64-v8a/GameActivity/CMakeFiles/rebuild_cache.dir

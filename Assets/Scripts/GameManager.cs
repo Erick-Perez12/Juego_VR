@@ -8,12 +8,12 @@ public class GameManager : MonoBehaviour
     public CandleController[] velas;
 
     // Los acertijos empiezan todos sin resolver.
-    private bool[] acertijosResueltos = new bool[4];
+    private bool[] acertijosResueltos = new bool[3];
 
     public int numero1 = 7;
     public int numero2 = 3;
     public int numero3 = 9;
-    public int numero4 = 1;
+    //public int numero4 = 1;
 
     void Start()
     {
@@ -75,7 +75,7 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("¡TODOS LOS ACERTIJOS COMPLETADOS!");
         Debug.Log("Código final: " +
-            numero1 + numero2 + numero3 + numero4);
+            numero1 + numero2 + numero3);
     }
 
     public bool TodosLosAcertijosResueltos()
