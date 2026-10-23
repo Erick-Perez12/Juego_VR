@@ -143,60 +143,145 @@ public class TimerManager : MonoBehaviour
     [Header("Ajuste de Duración del Beep")]
     [Tooltip("Duración máxima en segundos para cortar el beep (ejemplo: 0.5s)")]
     public float duracionBeep = 0.5f;
+
+    [Header("Screamer de Game Over")]
+    public MonsterAnimationManager monstruoAnim;
+    public Transform puntoFrenteCamaraVR; // Objeto vacío hijo de la cámara principal VR
+
     private float tiempoRestante;
     private bool juegoActivo = false;
+    private float escalaVelocidadTiempo = 1.0f;
     private Coroutine rutinaDetenerBeep;
 
     void Start()
     {
         tiempoRestante = tiempoInicial;
+        escalaVelocidadTiempo = 1.0f;
         ActualizarTextoReloj();
 
-        // Configurar el audio de fondo si está asignado
-        if (audioRelojFondo != null && sonidoRelojFondo != null)
+        //// Configurar el audio de fondo si está asignado
+        //if (audioRelojFondo != null && sonidoRelojFondo != null)
+        //{
+        //    audioRelojFondo.clip = sonidoRelojFondo;
+        //    audioRelojFondo.loop = true; // Que suene en bucle continuo
+        //}
+        if (audioRelojFondo != null)
         {
-            audioRelojFondo.clip = sonidoRelojFondo;
-            audioRelojFondo.loop = true; // Que suene en bucle continuo
+            audioRelojFondo.pitch = 1.0f; // Velocidad normal de audio
+            if (sonidoRelojFondo != null)
+            {
+                audioRelojFondo.clip = sonidoRelojFondo;
+                audioRelojFondo.loop = true;
+            }
         }
         IniciarTemporizador();
     }
 
+    //void Update()
+    //{
+    //    if (!juegoActivo)
+    //        return;
+
+    //    tiempoRestante -= Time.deltaTime;
+
+    //    if (tiempoRestante <= 0)
+    //    {
+    //        tiempoRestante = 0;
+    //        juegoActivo = false;
+    //        DetenerSonidoFondo();
+    //        // Detener el ambiente del ducto al perder por tiempo
+    //        if (DuctAmbienceManager.Instance != null)
+    //        {
+    //            DuctAmbienceManager.Instance.DetenerSonidoDucto();
+    //        }
+    //        Debug.Log("TIEMPO AGOTADO");
+
+    //        // Desactivar al monstruo si existe en la escena
+    //        MonsterController monstruo = FindFirstObjectByType<MonsterController>();
+    //        if (monstruo != null)
+    //        {
+    //            monstruo.DesactivarMonstruoCompletamente();
+    //        }
+
+    //        // Cambiar mensaje y teletransportar
+    //        if (GameOverManager.Instance != null)
+    //        {
+    //            GameOverManager.Instance.MostrarMensajePorTiempo();
+    //        }
+
+    //        TeletransportarAGameOver();
+    //    }
+
+    //    ActualizarTextoReloj();
+    //}
     void Update()
     {
         if (!juegoActivo)
             return;
 
-        tiempoRestante -= Time.deltaTime;
+        // El tiempo se resta multiplicado por la escala de velocidad
+        tiempoRestante -= Time.deltaTime * escalaVelocidadTiempo;
 
         if (tiempoRestante <= 0)
         {
             tiempoRestante = 0;
             juegoActivo = false;
             DetenerSonidoFondo();
-            // Detener el ambiente del ducto al perder por tiempo
+
+            // Lanzar el Screamer del monstruo
+            if (monstruoAnim != null)
+            {
+                monstruoAnim.EjecutarScreamer(puntoFrenteCamaraVR);
+            }
+
+            
+
             if (DuctAmbienceManager.Instance != null)
             {
                 DuctAmbienceManager.Instance.DetenerSonidoDucto();
             }
-            Debug.Log("TIEMPO AGOTADO");
 
-            // Desactivar al monstruo si existe en la escena
-            MonsterController monstruo = FindFirstObjectByType<MonsterController>();
-            if (monstruo != null)
-            {
-                monstruo.DesactivarMonstruoCompletamente();
-            }
+            //MonsterController monstruo = FindFirstObjectByType<MonsterController>();
+            //if (monstruo != null)
+            //{
+            //    monstruo.DesactivarMonstruoCompletamente();
+            //}
 
-            // Cambiar mensaje y teletransportar
-            if (GameOverManager.Instance != null)
-            {
-                GameOverManager.Instance.MostrarMensajePorTiempo();
-            }
-
-            TeletransportarAGameOver();
+            //if (GameOverManager.Instance != null)
+            //{
+            //    GameOverManager.Instance.MostrarMensajePorTiempo();
+            //}
+            // Iniciar rutina para esperar 1.5s antes de teletransportar a GameOver
+            StartCoroutine(RutinaScreamerYGameOver());
+            //TeletransportarAGameOver();
         }
 
         ActualizarTextoReloj();
+    }
+    private System.Collections.IEnumerator RutinaScreamerYGameOver()
+    {
+        yield return new WaitForSeconds(4f); // Tiempo que dura el golpe/mordida
+        MonsterController monstruo = FindFirstObjectByType<MonsterController>();
+        if (monstruo != null)
+        {
+            monstruo.DesactivarMonstruoCompletamente();
+        }
+        if (GameOverManager.Instance != null)
+        {
+            GameOverManager.Instance.MostrarMensajePorTiempo();
+        }
+
+        TeletransportarAGameOver();
+    }
+    public void AcelerarTiempo(float multiplicador)
+    {
+        escalaVelocidadTiempo = multiplicador;
+        // Modificar la velocidad/pitch del audio del reloj en bucle
+        if (audioRelojFondo != null)
+        {
+            audioRelojFondo.pitch = multiplicador;
+        }
+        Debug.Log("¡El tiempo ahora corre a una velocidad de: " + multiplicador + "x!");
     }
 
     public void IniciarTemporizador()
